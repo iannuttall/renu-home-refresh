@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { validatePostcode } from "@/lib/postcodeValidator";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AVAILABLE_DAYS = [2, 3, 5]; // Tuesday, Wednesday, Friday
 const SLOTS = [
@@ -20,17 +23,53 @@ export const BookingCalendar = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [postcodeValidation, setPostcodeValidation] = useState<{
+    isValid: boolean;
+    inServiceArea: boolean;
+    message?: string;
+  } | null>(null);
   const [details, setDetails] = useState("");
 
   const isAvailableDay = (date: Date) => {
     return AVAILABLE_DAYS.includes(date.getDay());
   };
 
+  const handlePostcodeChange = (value: string) => {
+    setPostcode(value);
+    
+    // Clear validation when user types
+    if (postcodeValidation) {
+      setPostcodeValidation(null);
+    }
+  };
+
+  const handlePostcodeBlur = () => {
+    if (postcode.trim()) {
+      const result = validatePostcode(postcode);
+      setPostcodeValidation(result);
+      
+      // Auto-format postcode if valid
+      if (result.isValid && result.formattedPostcode) {
+        setPostcode(result.formattedPostcode);
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedDate || !selectedSlot || !name || !email || !phone) {
+    if (!selectedDate || !selectedSlot || !name || !email || !phone || !postcode) {
       toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // Validate postcode before submission
+    const postcodeResult = validatePostcode(postcode);
+    setPostcodeValidation(postcodeResult);
+
+    if (!postcodeResult.isValid || !postcodeResult.inServiceArea) {
+      toast.error("Please enter a valid postcode in our service area");
       return;
     }
 
@@ -44,6 +83,8 @@ export const BookingCalendar = () => {
     setName("");
     setEmail("");
     setPhone("");
+    setPostcode("");
+    setPostcodeValidation(null);
     setDetails("");
   };
 
@@ -148,6 +189,38 @@ export const BookingCalendar = () => {
                           placeholder="07XXX XXXXXX"
                           required
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="postcode">Postcode *</Label>
+                        <Input
+                          id="postcode"
+                          type="text"
+                          value={postcode}
+                          onChange={(e) => handlePostcodeChange(e.target.value)}
+                          onBlur={handlePostcodeBlur}
+                          placeholder="SW1A 1AA"
+                          required
+                          className={cn(
+                            postcodeValidation?.isValid && postcodeValidation?.inServiceArea && "border-primary",
+                            postcodeValidation && (!postcodeValidation.isValid || !postcodeValidation.inServiceArea) && "border-destructive"
+                          )}
+                        />
+                        {postcodeValidation && (
+                          <Alert 
+                            variant={postcodeValidation.inServiceArea ? "default" : "destructive"}
+                            className="mt-2"
+                          >
+                            {postcodeValidation.inServiceArea ? (
+                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                            ) : (
+                              <AlertCircle className="h-4 w-4" />
+                            )}
+                            <AlertDescription className="text-sm">
+                              {postcodeValidation.message}
+                            </AlertDescription>
+                          </Alert>
+                        )}
                       </div>
 
                       <div className="space-y-2">
