@@ -1,17 +1,10 @@
 // UK Postcode validation and service area checking
 
 // Define allowed postcode areas (outward codes)
-// These are the first part of UK postcodes (e.g., "SW1", "W1", "E1")
+// Nottingham and Leicestershire service areas
 const ALLOWED_POSTCODE_AREAS = [
-  // Central London examples - customize these based on actual service areas
-  "SW1", "SW2", "SW3", "SW4", "SW5", "SW6", "SW7", "SW8", "SW9", "SW10",
-  "SW11", "SW12", "SW13", "SW14", "SW15", "SW16", "SW17", "SW18", "SW19", "SW20",
-  "W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10",
-  "W11", "W12", "W13", "W14",
-  "E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9", "E10",
-  "SE1", "SE2", "SE3", "SE4", "SE5", "SE6", "SE7", "SE8", "SE9", "SE10",
-  "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N10",
-  "NW1", "NW2", "NW3", "NW4", "NW5", "NW6", "NW7", "NW8", "NW9", "NW10",
+  "NG2", "NG4", "NG11", "NG12", "NG13", "NG14", "NG23", "NG24", "NG25", 
+  "NG31", "NG32", "LE13", "LE14",
 ];
 
 export interface PostcodeValidationResult {
@@ -112,7 +105,7 @@ export function validatePostcode(postcode: string): PostcodeValidationResult {
     return {
       isValid: true,
       inServiceArea: false,
-      message: "Sorry, we don't currently service this area. Our services are available in selected London postcodes.",
+      message: "Sorry, we don't currently service this area. We cover: NG2, NG4, NG11, NG12, NG13, NG14, NG23, NG24, NG25, NG31, NG32, LE13, LE14",
       formattedPostcode,
     };
   }
